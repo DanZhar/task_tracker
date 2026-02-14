@@ -1,0 +1,120 @@
+name: Run Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  lint:
+    name: Lint & Format Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install ruff
+        run: pip install ruff
+      - name: Check formatting
+        run: ruff format --check .
+      - name: Lint
+        run: ruff check .
+
+  test:
+    name: Tests (Python ${{ matrix.python-version }})
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.10", "3.11", "3.12"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install dependencies
+        run: pip install pytest
+      - name: Run tests
+        run: pytest -v --tb=short
+
+  structure:
+    name: Project Structure Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check required files
+        run: |
+          echo "Checking required project files..."
+          files=(
+            "task_tracker/__init__.py"
+            "task_tracker/main.py"
+            "task_tracker/cli.py"
+            "task_tracker/enums.py"
+            "task_tracker/exceptions.py"
+            "task_tracker/interfaces.py"
+            "task_tracker/validators.py"
+            "task_tracker/mixins.py"
+            "task_tracker/storage.py"
+            "task_tracker/models/__init__.py"
+            "task_tracker/models/base.py"
+            "task_tracker/models/tasks.py"
+            "task_tracker/models/user.py"
+            "task_tracker/models/project.py"
+            "pyproject.toml"
+            "README.md"
+          )
+          missing=0
+          for f in "${files[@]}"; do
+            if [ ! -f "$f" ]; then
+              echo "❌ Missing: $f"
+              missing=1
+            else
+              echo "✅ Found: $f"
+            fi
+          done
+          if [ $missing -eq 1 ]; then
+            echo "::error::Some required files are missing!"
+            exit 1
+          fi
+          echo "All required files are present."
+
+      - name: Check no banned imports
+        run: |
+          python3 -c "
+          import ast, sys, pathlib
+
+          ALLOWED_STDLIB = {
+              'os', 'sys', 'json', 'argparse', 'pathlib', 'time',
+              'functools', 'typing', 'collections', 'dataclasses',
+              'io', 'stat', 'errno', 'warnings', 'math',
+              'abc', 'enum', 'uuid', 'datetime', 'copy',
+          }
+          INTERNAL = {'task_tracker'}
+
+          errors = []
+          for py_file in pathlib.Path('task_tracker').glob('**/*.py'):
+              with open(py_file) as f:
+                  try:
+                      tree = ast.parse(f.read())
+                  except SyntaxError:
+                      continue
+              for node in ast.walk(tree):
+                  if isinstance(node, ast.Import):
+                      for alias in node.names:
+                          top = alias.name.split('.')[0]
+                          if top not in ALLOWED_STDLIB and top not in INTERNAL:
+                              errors.append(f'{py_file}: forbidden import \"{alias.name}\"')
+                  elif isinstance(node, ast.ImportFrom):
+                      if node.module:
+                          top = node.module.split('.')[0]
+                          if top not in ALLOWED_STDLIB and top not in INTERNAL:
+                              errors.append(f'{py_file}: forbidden from-import \"{node.module}\"')
+          if errors:
+              for e in errors:
+                  print(f'❌ {e}')
+              sys.exit(1)
+          else:
+              print('✅ No forbidden imports found')
+          "
