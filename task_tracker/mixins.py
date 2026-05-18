@@ -2,6 +2,7 @@
 
 Миксины добавляют дополнительное поведение к классам через множественное наследование.
 """
+from datetime import datetime
 
 
 class TimestampMixin:
@@ -18,7 +19,10 @@ class TimestampMixin:
                 super().__setattr__('updated_at', datetime.now())
     """
 
-    # TODO: Реализуйте автообновление updated_at
+    def __setattr__(self, name, value):
+        super().__setattr__(name, value)
+        if name != 'updated_at' and hasattr(self, 'updated_at'):
+            super().__setattr__('updated_at', datetime.now())
 
 
 class HistoryMixin:
@@ -36,4 +40,21 @@ class HistoryMixin:
     Подсказка: можно вызывать метод _record_transition(old, new) из change_status().
     """
 
-    # TODO: Реализуйте ведение истории изменений статуса
+    def _ensure_history(self):
+        if not hasattr(self, '_history'):
+            self._history = []
+
+    @property
+    def history(self):
+        self._ensure_history()
+        return self._history
+
+    def _record_transition(self, old_status, new_status) -> None:
+        self._ensure_history()
+
+        transition = {
+            "from": old_status.value,
+            "to": new_status.value,
+            "at": datetime.now().isoformat()
+        }
+        self._history.append(transition)
