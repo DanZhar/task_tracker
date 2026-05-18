@@ -42,6 +42,16 @@ class RangeValidator:
         # 1. Проверьте, что value — число (int или float)
         # 2. Если min_value задан и value < min_value → ValidationError
         # 3. Если max_value задан и value > max_value → ValidationError
+
+        if not isinstance(value, (int, float)):
+            raise ValidationError(f"Value '{value}' is not a number")
+
+        if self.min_value is not None and value < self.min_value:
+            raise ValidationError(f"Value must be >= {self.min_value}")
+
+        if self.max_value is not None and value > self.max_value:
+            raise ValidationError(f"Value must be <= {self.max_value}")
+
         setattr(obj, self.private_name, value)
 
 
@@ -75,4 +85,14 @@ class StringLengthValidator:
         # 1. Проверьте, что value — строка
         # 2. Если len(value) < min_length → ValidationError
         # 3. Если max_length задан и len(value) > max_length → ValidationError
+
+        if not isinstance(value, str):
+            raise ValidationError(f"Value '{value}' is not a string")
+
+        if self.min_length is not None and len(value) < self.min_length:
+            raise ValidationError(f"String length must be >= {self.min_length}")
+
+        if self.max_length is not None and len(value) > self.max_length:
+            raise ValidationError(f"String length must be <= {self.max_length}")
+
         setattr(obj, self.private_name, value)

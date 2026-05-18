@@ -32,17 +32,49 @@ class User(Serializable, Displayable):
 
     def to_dict(self) -> dict:
         """Сериализовать пользователя в словарь."""
-        raise NotImplementedError("TODO: Реализуйте to_dict для User")
+
+        return {
+            "id": self.id,
+            "name": self.name,
+            "role": self.role.value
+        }
+
 
     @classmethod
     def from_dict(cls, data: dict) -> "User":
         """Создать пользователя из словаря."""
-        raise NotImplementedError("TODO: Реализуйте from_dict для User")
+
+        obj = cls(name=data["name"], role=Role(data["role"]))
+        obj.id = data["id"]
+
+        return obj
 
     # ── Displayable ─────────────────────────────────────────────────
 
     def short_display(self) -> str:
-        raise NotImplementedError("TODO: Реализуйте short_display для User")
+        return str(self)
 
     def full_display(self) -> str:
-        raise NotImplementedError("TODO: Реализуйте full_display для User")
+        return (
+            f"=== Пользователь ===\n"
+            f"  ID:   {self.id}\n"
+            f"  Имя:  {self.name}\n"
+            f"  Роль: {self.role.value}"
+        )
+
+    # ── Магические методы ───────────────────────
+
+    def __str__(self):
+        return f"{self.name} ({self.role.name})"
+
+    def __repr__(self):
+        return f"User(id={self.id!r}, name={self.name!r}, role={self.role})"
+
+    def __eq__(self, other) -> bool:
+        if not isinstance(other, User):
+            return NotImplemented
+
+        return self.id == other.id
+
+    def __hash__(self):
+        return hash(self.id)
