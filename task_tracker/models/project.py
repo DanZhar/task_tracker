@@ -39,7 +39,7 @@ class Project(Serializable, Displayable):
             "id": self.id,
             "name": self.name,
             "tasks": [task.to_dict() for task in self.tasks],
-            "members": [member.to_dict() for member in self.members]
+            "members": [member.to_dict() for member in self.members],
         }
 
     @classmethod
@@ -67,11 +67,7 @@ class Project(Serializable, Displayable):
         return str(self)
 
     def full_display(self) -> str:
-        lines = [
-            f"Project : {self.name}",
-            f"ID      : {self.id}",
-            f"Members : {len(self.members)}"
-        ]
+        lines = [f"Project : {self.name}", f"ID      : {self.id}", f"Members : {len(self.members)}"]
 
         for i, member in enumerate(self.members, start=1):
             lines.append(f"    {i}. {member.short_display()}")

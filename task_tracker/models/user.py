@@ -33,12 +33,7 @@ class User(Serializable, Displayable):
     def to_dict(self) -> dict:
         """Сериализовать пользователя в словарь."""
 
-        return {
-            "id": self.id,
-            "name": self.name,
-            "role": self.role.value
-        }
-
+        return {"id": self.id, "name": self.name, "role": self.role.value}
 
     @classmethod
     def from_dict(cls, data: dict) -> "User":

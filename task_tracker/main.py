@@ -10,10 +10,10 @@ import argparse
 from task_tracker.cli import run_cli
 
 
-def valid_path(path_str : str) -> str:
+def valid_path(path_str: str) -> str:
     """Функция для валидации аргумента --data"""
 
-    if not path_str.endswith('.json'):
+    if not path_str.endswith(".json"):
         raise argparse.ArgumentError(f"{path_str} is not a JSON file")
 
     return path_str
@@ -32,12 +32,12 @@ def parse_args(args: list[str] | None = None) -> argparse.Namespace:
         argparse.Namespace с полем data
     """
 
-    parser = argparse.ArgumentParser(prog="task_tracker",
-                                     description="Console task tracker with context menu")
-    parser.add_argument("--data",
-                        type=valid_path,
-                        default="data.json",
-                        help="Path to data storage file")
+    parser = argparse.ArgumentParser(
+        prog="task_tracker", description="Console task tracker with context menu"
+    )
+    parser.add_argument(
+        "--data", type=valid_path, default="data.json", help="Path to data storage file"
+    )
 
     return parser.parse_args(args)
 

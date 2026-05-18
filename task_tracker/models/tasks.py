@@ -19,12 +19,12 @@ class Bug(Task):
     severity = RangeValidator(min_value=1, max_value=10)
 
     def __init__(
-            self,
-            title: str,
-            description: str = "",
-            priority: Priority = Priority.MEDIUM,
-            severity: int = 1,
-            steps_to_reproduce: str = "",
+        self,
+        title: str,
+        description: str = "",
+        priority: Priority = Priority.MEDIUM,
+        severity: int = 1,
+        steps_to_reproduce: str = "",
     ):
         super().__init__(title, description, priority)
         self.severity = severity
@@ -55,7 +55,7 @@ class Bug(Task):
             description=data.get("description", ""),
             priority=Priority(data["priority"]),
             severity=data.get("severity", 1),
-            steps_to_reproduce=data.get("steps_to_reproduce", "")
+            steps_to_reproduce=data.get("steps_to_reproduce", ""),
         )
 
         obj._restore_fields(data)
@@ -84,12 +84,12 @@ class Feature(Task):
     complexity = RangeValidator(min_value=1, max_value=10)
 
     def __init__(
-            self,
-            title: str,
-            description: str = "",
-            priority: Priority = Priority.MEDIUM,
-            business_value: int = 5,
-            complexity: int = 5,
+        self,
+        title: str,
+        description: str = "",
+        priority: Priority = Priority.MEDIUM,
+        business_value: int = 5,
+        complexity: int = 5,
     ):
         super().__init__(title, description, priority)
         self.business_value = business_value
@@ -119,7 +119,7 @@ class Feature(Task):
             description=data.get("description", ""),
             priority=Priority(data["priority"]),
             business_value=data.get("business_value", 5),
-            complexity=data.get("complexity", 5)
+            complexity=data.get("complexity", 5),
         )
 
         obj._restore_fields(data)
@@ -143,11 +143,11 @@ class Epic(Task):
     """
 
     def __init__(
-            self,
-            title: str,
-            description: str = "",
-            priority: Priority = Priority.MEDIUM,
-            subtasks: list | None = None,
+        self,
+        title: str,
+        description: str = "",
+        priority: Priority = Priority.MEDIUM,
+        subtasks: list | None = None,
     ):
         super().__init__(title, description, priority)
         self.subtasks: list[Task] = subtasks if subtasks is not None else []
@@ -167,14 +167,16 @@ class Epic(Task):
 
     @classmethod
     def from_dict(cls, data: dict) -> "Epic":
+        from task_tracker.models.base import Task
+
         obj = cls(
             title=data["title"],
             description=data.get("description", ""),
             priority=Priority(data["priority"]),
-            subtasks=data.get("subtasks", None),
         )
 
         obj._restore_fields(data)
+        obj.subtasks = [Task.from_dict(sub) for sub in data.get("subtasks", [])]
         return obj
 
     def _display_lines(self) -> list[str]:

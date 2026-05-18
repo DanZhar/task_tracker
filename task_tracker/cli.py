@@ -3,6 +3,7 @@
 Модуль отвечает за взаимодействие с пользователем через консоль:
 главное меню, подменю, ввод данных, вывод отчётов.
 """
+
 from collections import defaultdict
 
 from task_tracker.enums import Priority, Status
@@ -91,6 +92,7 @@ PRIORITY_MAP: dict[str, Priority] = {
 
 # ── Вспомогательные функции ───────────────────────────────────────────
 
+
 def _select_project(data: list) -> Project | None:
     if not data:
         print("Нет доступных проектов.")
@@ -113,9 +115,7 @@ def _find_task(project: Project, task_id: str) -> Task:
     if not matches:
         raise EntityNotFoundError(f"Задача с ID '{task_id}' не найдена.")
     if len(matches) > 1:
-        raise EntityNotFoundError(
-            f"Неоднозначный ID '{task_id}': найдено {len(matches)} задач."
-        )
+        raise EntityNotFoundError(f"Неоднозначный ID '{task_id}': найдено {len(matches)} задач.")
     return matches[0]
 
 
@@ -146,6 +146,7 @@ def _input_lower(prompt: str) -> str:
 
 
 # ── Задачи ────────────────────────────────────────────────────────────
+
 
 def tasks_menu(data: list[Project]) -> None:
     while True:
@@ -204,15 +205,19 @@ def create_task(data: list[Project]) -> None:
             severity = int(severity_raw) if severity_raw.isdigit() else 1
             steps = input("Шаги воспроизведения (Enter для пропуска): ").strip()
             task = Bug(
-                title=title, description=description,
-                priority=priority, severity=severity,
+                title=title,
+                description=description,
+                priority=priority,
+                severity=severity,
                 steps_to_reproduce=steps,
             )
         elif task_type == "feature":
             bv_raw = input("Бизнес-ценность [1-10] (Enter = 5): ").strip()
             cx_raw = input("Сложность [1-10] (Enter = 5): ").strip()
             task = Feature(
-                title=title, description=description, priority=priority,
+                title=title,
+                description=description,
+                priority=priority,
                 business_value=int(bv_raw) if bv_raw.isdigit() else 5,
                 complexity=int(cx_raw) if cx_raw.isdigit() else 5,
             )
@@ -255,7 +260,8 @@ def list_tasks(data: list[Project]) -> None:
 
     if assignee_raw:
         tasks = [
-            t for t in tasks
+            t
+            for t in tasks
             if isinstance(t.assignee, User) and assignee_raw in t.assignee.name.lower()
         ]
 
@@ -401,8 +407,7 @@ def manage_epic_subtasks(data: list[Project]) -> None:
 
         if choice == "1":
             available = [
-                t for t in project.tasks
-                if not isinstance(t, Epic) and t not in epic.subtasks
+                t for t in project.tasks if not isinstance(t, Epic) and t not in epic.subtasks
             ]
             if not available:
                 print("Нет доступных задач для добавления.")
@@ -464,6 +469,7 @@ def delete_task(data: list[Project]) -> None:
 
 
 # ── Проекты ───────────────────────────────────────────────────────────
+
 
 def projects_menu(data: list[Project]) -> None:
     while True:
@@ -554,6 +560,7 @@ def show_project_details(data: list[Project]) -> None:
 
 # ── Пользователи ──────────────────────────────────────────────────────
 
+
 def users_menu(data: list[Project]) -> None:
     while True:
         print("\n=== Пользователи ===")
@@ -604,14 +611,14 @@ def add_member(data: list[Project]) -> None:
         return
 
     if any(m.name.lower() == name.lower() for m in project.members):
-        print(
-            f"Участник с именем '{name}' уже есть в проекте."
-        )
+        print(f"Участник с именем '{name}' уже есть в проекте.")
         return
 
     role_map = {
-        "developer": Role.DEVELOPER, "qa": Role.QA,
-        "team_lead": Role.TEAM_LEAD, "pm": Role.PM,
+        "developer": Role.DEVELOPER,
+        "qa": Role.QA,
+        "team_lead": Role.TEAM_LEAD,
+        "pm": Role.PM,
     }
     role_raw = _input_lower(f"Роль [{'/'.join(role_map)}]: ")
     role = role_map.get(role_raw, Role.DEVELOPER)
@@ -662,6 +669,7 @@ def remove_member(data: list[Project]) -> None:
 
 
 # ── Отчёты ────────────────────────────────────────────────────────────
+
 
 def reports_menu(data: list[Project]) -> None:
     while True:

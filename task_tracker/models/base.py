@@ -40,10 +40,10 @@ class Task(Serializable, Displayable, ABC, TimestampMixin, HistoryMixin):
     """
 
     def __init__(
-            self,
-            title: str,
-            description: str = "",
-            priority: Priority = Priority.MEDIUM,
+        self,
+        title: str,
+        description: str = "",
+        priority: Priority = Priority.MEDIUM,
     ):
         self.id = str(uuid.uuid4())
         self.title = title
@@ -128,7 +128,7 @@ class Task(Serializable, Displayable, ABC, TimestampMixin, HistoryMixin):
             "assignee_id": self.assignee.id if self.assignee is not None else None,
             "created_at": self.created_at.isoformat(),
             "updated_at": self.updated_at.isoformat(),
-            "history": self.history
+            "history": self.history,
         }
 
     @classmethod
@@ -196,9 +196,11 @@ class Task(Serializable, Displayable, ABC, TimestampMixin, HistoryMixin):
 
     # __repr__: Bug(id='abc12', title='Fix login', status=OPEN)
     def __repr__(self) -> str:
-        return (f"{type(self).__name__}(id={self.id!r}, "
-                f"title={self._title!r}, "
-                f"status={self._status.name})")
+        return (
+            f"{type(self).__name__}(id={self.id!r}, "
+            f"title={self._title!r}, "
+            f"status={self._status.name})"
+        )
 
     # __eq__, __hash__: по id
     def __eq__(self, other) -> bool:

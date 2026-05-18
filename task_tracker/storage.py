@@ -2,6 +2,7 @@
 
 Модуль работает с интерфейсом Serializable, а не с конкретными классами (DIP).
 """
+
 import json
 import os
 from json import JSONDecodeError
@@ -44,7 +45,7 @@ def save_data(projects: list, filepath: str) -> None:
         raise StorageError(f"Failed to serialize data: {e}") from e
 
     try:
-        with open(filepath, 'w', encoding='utf-8') as dest_file:
+        with open(filepath, "w", encoding="utf-8") as dest_file:
             json.dump(projects_dicts, dest_file, indent=2)
     except OSError as e:
         raise StorageError(f"Failed to write JSON: {filepath}: {e}") from e
